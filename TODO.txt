@@ -1,0 +1,12 @@
+
+convert to class - DONE -
+
+refresh rate
+
+join delay
+
+sleep mode - between meetings
+
+volume manager
+
+GUI - PysimpleGUI, PyQt, other
