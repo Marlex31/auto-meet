@@ -1,11 +1,12 @@
 
 convert to class - DONE -
 
-refresh rate
-
-join delay
+refresh rate - DONE -
 
 sleep mode - between meetings
+-> add hourly comparison or convert hour to minutes too
+
+join delay
 
 volume manager
 

@@ -2,3 +2,4 @@ test.py
 geckodriver.log
 debug.log
 .vscode
+__pycache__/
