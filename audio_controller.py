@@ -60,17 +60,3 @@ class AudioController(object):
                 self.volume = min(1.0, self.volume+decibels)
                 interface.SetMasterVolume(self.volume, None)
                 print('Volume raised to', self.volume)  # debug
-
-
-# def main():
-    # audio_controller = AudioController('Zoom.exe')
-    # print(audio_controller.process_volume())
-    # audio_controller.mute()
-    # audio_controller.unmute()
-    # audio_controller.set_volume(1)
-    # audio_controller.decrease_volume(0.25)
-    # audio_controller.increase_volume(0.05)
-
-
-# if __name__ == "__main__":
-    # main()

@@ -8,6 +8,16 @@ sleep mode - between meetings
 
 join delay
 
-volume manager
+volume manager - DONE -
 
-GUI - PysimpleGUI, PyQt, other
+GUI - PysimpleGUI
+
+mail, pwd confing file OR cookies - DONE -
+
+clean up main.py
+
+check cookie integrity
+
+bracktrack for non-meeting messages
+
+add toast or sound notification
