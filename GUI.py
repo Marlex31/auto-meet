@@ -7,10 +7,14 @@ audio_controller.set_volume(1)
 
 
 sg.theme('Reddit')
+sg.set_options(font=20)
 
-toggle_vol = sg.Button('Unmuted', size=(7, 2), key='btn', enable_events=True)
+toggle_vol = sg.Button('Unmuted', key='btn', enable_events=True)
 layout = [
-    [sg.Output(size=(30, 5))],
+    [sg.Output(size=(30, 5), key='out'), sg.Text('Join delay value:'),
+     sg.Spin(values=list(range(15)), initial_value=0, size=(2, 2),
+             key='d', enable_events=True),
+     sg.Text('mins')],
     [sg.Slider(range=(0, 10),
                default_value=10,
                size=(20, 15),
@@ -18,9 +22,12 @@ layout = [
                font=('Helvetica', 12),
                enable_events=True,
                key='vol'
-               ), toggle_vol, sg.Button('Add credentials',
-                                        enable_events=True,
-                                        key='creds')]]
+               ),
+     toggle_vol,
+     sg.Button('Add credentials',
+               enable_events=True,
+               key='creds'),
+     sg.Button('Clear', enable_events=True, key='cls')]]
 
 window = sg.Window('Meeting automation', layout)
 
@@ -40,7 +47,13 @@ while True:
     if event == 'creds':
         mail = sg.popup_get_text('Mail')
         pwd = sg.popup_get_text('Password', password_char='*')
-        print('New credentials added!')
-
+        if mail is not None and pwd is not None and mail != '' and pwd != '':
+            print('New credentials added!')
+        else:
+            print("Failed to add credentials.")
+    if event == 'cls':
+        window['out'].Update('')
+    if event == 'd':
+        print(f'Delay set to {values["d"]}')
 
 window.close()

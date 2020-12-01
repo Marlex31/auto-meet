@@ -15,7 +15,11 @@ class LogIn:
         options = webdriver.ChromeOptions()
         if headless is True:
             options.add_argument("--headless")
+            options.add_experimental_option(
+                'excludeSwitches', ['enable-logging'])
+            # options.add_argument("--log-level=3")
         self.driver = webdriver.Chrome(options=options)
+
         self.driver.get('http://adservio.ro')
         self.driver.implicitly_wait(2)
 
@@ -28,6 +32,8 @@ class LogIn:
                 self.driver.add_cookie(cookie)
             self.driver.refresh()
             self.driver.implicitly_wait(2)
+
+            print('Enstablished connection to account.')
 
         except FileNotFoundError:
 
@@ -53,9 +59,10 @@ class LogIn:
 
             pickle.dump(self.driver.get_cookies(), open('cookies.txt', 'wb'))
 
-        self.join()
+        self.joined = False
+        self.join(5)
 
-    def join(self):
+    def join(self, delay=0):
 
         self.driver.get("https://www.adservio.ro/ro/messages")
         self.driver.implicitly_wait(2)
@@ -79,39 +86,34 @@ class LogIn:
                 print(btn, link)
                 break
 
-        joined = False
-        # divs = self.driver.find_element_by_tag_name('div')
-        # time_sent = divs.text.split('\n')[4]
+        divs = self.driver.find_element_by_tag_name('div')
+        time_sent = divs.text.split('\n')[4]
 
-        # # test vars
-        # time_sent = '13:15'
-        # if len(time_sent) != 5:
-        #     print('Error, no meeting found today.')
-        #     exit()
+        # test vars
+        time_sent = '13:15'
+        if len(time_sent) != 5:
+            print('Error, no meeting found today.')
+            exit()
 
-        # time_sent = int(time_sent[-2:].lstrip('0'))
-        # curr_time = datetime.now().minute
+        time_sent = int(time_sent[-2:].lstrip('0'))
+        curr_time = datetime.now().minute
 
-        # if curr_time > time_sent and joined is False:
-        #     for a in self.driver.find_elements_by_xpath('.//a'):
-        #         if '/zoom.us/' in a.get_attribute('href'):
-        #             btn = a.get_attribute('href')
-        #             break
+        if curr_time > time_sent and self.joined is False:
+            webbrowser.open_new_tab(btn)
+            self.joined = True
+            print('Joined a meeting')
 
-        #     webbrowser.open_new_tab(btn)
-        #     joined = True
-        #     # self.driver.close()
+        elif curr_time > time_sent and self.joined is True:
+            print(f'Waiting until {datetime.now().hour + 1}:{15 + delay}.')
+            sleep(60 * ((75 + delay) - curr_time))
+            self.joined = False
 
-        # elif curr_time > time_sent and joined is True:
-        #     print(f'Waiting until {datetime.now().hour+1}:15.')
-        #     self.driver.implicitly_wait(60 * (75-curr_time))
+        else:
+            print('No meeting found, trying again...')
+            sleep(30)
+            self.driver.back()
 
-        # else:
-        #     print('No meeting found, trying again...')
-        #     self.driver.implicitly_wait(30)
-        #     self.driver.back()
-
-        # self.join()
+        self.join()
 
 
-ex = LogIn(False)
+ex = LogIn()

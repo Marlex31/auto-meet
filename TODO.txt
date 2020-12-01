@@ -16,8 +16,18 @@ mail, pwd confing file OR cookies - DONE -
 
 clean up main.py
 
-check cookie integrity
+check cookie integrity and time until expiration(?)
 
-bracktrack for non-meeting messages
+backtrack for non-meeting messages - DONE -
 
 add toast or sound notification
+
+manage threads to only have 1 job scheduled
+
+test driver lifetime and behaviour
+
+turn off webcam
+
+add comments
+
+join meeting with webdriver to avoid browser tab clutter
