@@ -1,0 +1,4 @@
+selenium==3.141.0
+win10toast==0.9
+pycaw==20181226
+PySimpleGUI==4.32.1
