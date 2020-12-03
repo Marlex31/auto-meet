@@ -107,3 +107,4 @@ while True:
         print(f'> Delay set to {values["d"]}.')
 
 window.close()
+ex.driver.close()

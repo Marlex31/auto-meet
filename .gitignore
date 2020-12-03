@@ -4,3 +4,5 @@ debug.log
 .vscode
 __pycache__/
 cookies.txt
+chromedriver.exe
+distributable/
