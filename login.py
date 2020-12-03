@@ -6,11 +6,26 @@ import re
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from win10toast import ToastNotifier
 
 
 class LogIn:
+    """
+    Accesses the site by using the selenium webdriver, attemps to log in with
+    cookies or promps user to log in and then locally saves the cookies for
+    future sessions.
+    """
 
     def __init__(self, headless=True, mail=None, pwd=None):
+        """
+        :param headless: debug purposes, shows/hides the webdriver window
+        :type headless: (bool)
+        :param mail: mail used for log in
+        :type mail: (str)
+        :param pwd: password used for log in
+        :type pwd: (str)
+
+        """
         super(LogIn, self).__init__()
 
         options = webdriver.ChromeOptions()
@@ -18,7 +33,7 @@ class LogIn:
             options.add_argument("--headless")
             options.add_experimental_option(
                 'excludeSwitches', ['enable-logging'])
-            # options.add_argument("--log-level=3")
+
         self.driver = webdriver.Chrome(options=options)
 
         self.driver.get('http://adservio.ro')
@@ -34,12 +49,9 @@ class LogIn:
             self.driver.refresh()
             self.driver.implicitly_wait(2)
 
-
         except FileNotFoundError:
 
-            if mail is None or pwd is None:
-                pass
-            else:
+            if mail is not None or pwd is not None:
                 adress = self.driver.find_element_by_css_selector(
                     '.label_margin_bottom > input:nth-child(3)')
                 adress.send_keys(mail)
@@ -54,12 +66,23 @@ class LogIn:
                 self.driver.implicitly_wait(2)
                 sleep(5)
 
-                pickle.dump(self.driver.get_cookies(), open('cookies.txt', 'wb'))
+                pickle.dump(self.driver.get_cookies(),
+                            open('cookies.txt', 'wb'))
 
         self.joined = False
-        # self.join()
 
     def join(self, delay=0):
+
+        """
+        Scrapes the "messages" page for a valid Zoom link, while
+        comparing current time and the time the meeting was sent,
+        therefore only joining recent meeting. The bool chain returns
+        the amount of seconds that the thread has to sleep until becoming
+        active again and searching for a meeting.
+
+        :param delay: time in seconds to delay the meeting join
+        :type delay: (int)
+        """
 
         self.driver.get("https://www.adservio.ro/ro/messages")
         self.driver.implicitly_wait(2)
@@ -92,31 +115,33 @@ class LogIn:
                 break
 
         if match is None:
-            print('No meeting found, trying again.')
+            print('> No meeting found, trying again.')
             return 60
 
         # print(time_sent)
         curr_time = datetime.now().minute
 
         if curr_time > time_sent and self.joined is False:
-            print('Joined a meeting.')
-            # self.driver.get(btn)
+
+            toaster = ToastNotifier()
+            toaster.show_toast("Meeting Automation",
+                               "Joining a meeting...",
+                               duration=3)
+
+            print('> Joined a meeting.')
             webbrowser.open_new_tab(btn)
             self.joined = True
             return 0
 
         elif curr_time > time_sent and self.joined is True:
-            print(f'Waiting until {datetime.now().hour + 1}:{15 + delay}.')
+            print(f'> Waiting until {datetime.now().hour + 1}:{15 + delay}.')
             self.joined = False
             return 60 * ((75 + delay) - curr_time)
 
         elif curr_time < 15:
-            print('Waiting until the first quarter.')
+            print('> Waiting until the first quarter.')
             return 60 * (15 - curr_time)
 
         else:
-            print('No meeting found, trying again...')
+            print('> No meeting found, trying again...')
             return 30
-
-
-# ex = LogIn(False)

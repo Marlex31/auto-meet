@@ -3,6 +3,11 @@ from pycaw.pycaw import AudioUtilities
 
 
 class AudioController(object):
+    """
+    Use Py Core Audio Windows to grab all active processes
+    and control the volume for the chosen one.
+    """
+
     def __init__(self, process_name):
         self.process_name = process_name
         self.volume = self.process_volume()

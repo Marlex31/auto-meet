@@ -22,15 +22,15 @@ check cookie integrity and time until expiration(?)
 
 backtrack for non-meeting messages - DONE -
 
-add toast or sound notification
+add toast or sound notification - DONE -
 
-manage threads to only have 1 job scheduled
+manage threads to only have 1 job scheduled - DONE -
 
 test driver lifetime and behaviour
 
 turn off webcam (deccon-win)
 
-add comments
+add comments - DONE -
 
 join meeting with webdriver to avoid browser tab clutter - FAILED -
 
