@@ -1,119 +1,100 @@
-from datetime import datetime
-from time import sleep
-import webbrowser
-import pickle
+import threading
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from login import LogIn
+
+import PySimpleGUI as sg
+from audio_controller import AudioController
 
 
-class LogIn:
+audio_controller = AudioController('Zoom.exe')
+audio_controller.unmute()
+audio_controller.set_volume(1)
 
-    def __init__(self, headless=True):
-        super(LogIn, self).__init__()
 
-        options = webdriver.ChromeOptions()
-        if headless is True:
-            options.add_argument("--headless")
-            options.add_experimental_option(
-                'excludeSwitches', ['enable-logging'])
-            # options.add_argument("--log-level=3")
-        self.driver = webdriver.Chrome(options=options)
+sg.theme('Reddit')
+sg.set_options(font=20)
 
-        self.driver.get('http://adservio.ro')
-        self.driver.implicitly_wait(2)
+toggle_job = sg.Button('Start', size=(5, 1), key='job', enable_events=True)
+toggle_vol = sg.Button('Mute', size=(7, 1), key='btn', enable_events=True)
+layout = [
+    [sg.Output(size=(30, 5), key='out'), sg.Text('Join delay value:'),
+     sg.Spin(values=list(range(15)), initial_value=0, size=(2, 2),
+             key='d', enable_events=True),
+     sg.Text('mins')],
+    [sg.Slider(range=(0, 10),
+               default_value=10,
+               size=(20, 15),
+               orientation='horizontal',
+               font=('Helvetica', 12),
+               enable_events=True,
+               key='vol'
+               ),
+     toggle_job,
+     toggle_vol,
+     sg.Button('Add credentials',
+               enable_events=True,
+               key='creds'),
+     sg.Button('Clear', enable_events=True, key='cls')]]
 
-        try:
-            self.driver.delete_all_cookies()
-            self.driver.implicitly_wait(2)
-
-            cookies = pickle.load(open('cookies.txt', 'rb'))
-            for cookie in cookies:
-                self.driver.add_cookie(cookie)
-            self.driver.refresh()
-            self.driver.implicitly_wait(2)
-
-            print('Enstablished connection to account.')
-
-        except FileNotFoundError:
-
-            print("Your log in credentials have expired or are missing,",
-                  "please enter them.")
-
-            mail = 'alexandru.merila@gmail.com'
-            pwd = 'vgjdbQ4BaaoFsL%'  # change after GitHub push
-
-            adress = self.driver.find_element_by_css_selector(
-                '.label_margin_bottom > input:nth-child(3)')
-            adress.send_keys(mail)
-            adress.send_keys(Keys.RETURN)
-            self.driver.implicitly_wait(2)
-
-            passwd = self.driver.find_element_by_css_selector(
-                '.label_margin_bottom > input:nth-child(4)')
-            passwd.send_keys(pwd)
-            self.driver.implicitly_wait(2)
-            passwd.send_keys(Keys.RETURN)
-            self.driver.implicitly_wait(2)
-            sleep(5)
-
-            pickle.dump(self.driver.get_cookies(), open('cookies.txt', 'wb'))
-
-        self.joined = False
-        self.join(5)
-
-    def join(self, delay=0):
-
-        self.driver.get("https://www.adservio.ro/ro/messages")
-        self.driver.implicitly_wait(2)
-        sleep(1)
-
-        links = []
-        for a in self.driver.find_elements_by_xpath('.//a'):
-            link = a.get_attribute('href')
-            if '/received/' in link:
-                links.append(link)
-
-        for link in links:
-            btn = None
-            self.driver.get(link)
-            sleep(1)
-
-            for a in self.driver.find_elements_by_xpath('.//a'):
-                if '/zoom.us/' in a.get_attribute('href'):
-                    btn = a.get_attribute('href')
-            if btn is not None:
-                print(btn, link)
-                break
-
-        divs = self.driver.find_element_by_tag_name('div')
-        time_sent = divs.text.split('\n')[4]
-
-        # test vars
-        time_sent = '13:15'
-        if len(time_sent) != 5:
-            print('Error, no meeting found today.')
-            exit()
-
-        time_sent = int(time_sent[-2:].lstrip('0'))
-        curr_time = datetime.now().minute
-
-        if curr_time > time_sent and self.joined is False:
-            webbrowser.open_new_tab(btn)
-            self.joined = True
-            print('Joined a meeting')
-
-        elif curr_time > time_sent and self.joined is True:
-            print(f'Waiting until {datetime.now().hour + 1}:{15 + delay}.')
-            sleep(60 * ((75 + delay) - curr_time))
-            self.joined = False
-
-        else:
-            print('No meeting found, trying again...')
-            sleep(30)
-            self.driver.back()
-
-        self.join()
-
+window = sg.Window('Meeting automation', layout, finalize=True)
+try:
+    open('cookies.txt', 'rb')
+    window['out'].Update('Connection successful with Adservio.')
+except FileNotFoundError:
+    window['out'].Update('Connection to Adservio failed, please enter your credentials.\n')
 
 ex = LogIn()
+
+
+def long_function():
+    global t
+    t = threading.Timer(interval=ex.join(), function=ex.join)
+    t.start()
+
+
+while True:
+    event, values = window.read()
+    if event == sg.WIN_CLOSED:
+        break
+
+    if event == 'vol':
+        audio_controller.set_volume(values['vol']/10)
+
+    if event == 'job':
+        if toggle_job.get_text() == 'Start':
+            toggle_job.Update(text='Stop')
+            toggle_job.Update(button_color=('white', 'red'))
+            long_function()
+        else:
+            toggle_job.Update(text='Start')
+            toggle_job.Update(button_color=('white', 'DodgerBlue3'))
+            t.cancel()
+            print('Canceled job.')
+
+    if event == 'btn':
+        if toggle_vol.get_text() == 'Mute':
+            audio_controller.mute()
+            toggle_vol.Update(text='Unmute')
+            toggle_vol.Update(button_color=('white', 'red'))
+
+        else:
+            audio_controller.unmute()
+            toggle_vol.Update(text='Mute')
+            toggle_vol.Update(button_color=('white', 'DodgerBlue3'))
+
+    if event == 'creds':
+        mail = sg.popup_get_text('Mail')
+        pwd = sg.popup_get_text('Password', password_char='*')
+        if mail is not None and pwd is not None and mail != '' and pwd != '':
+            print('New credentials added!')
+            ex = LogIn(mail=mail, pwd=pwd)
+        else:
+            print("Failed to add credentials.")
+
+    if event == 'cls':
+        window['out'].Update('')
+
+    if event == 'd':
+        print(f'Delay set to {values["d"]}.')
+
+window.close()

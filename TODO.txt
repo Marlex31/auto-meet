@@ -1,20 +1,22 @@
 
+avoid join func recursion! - DONE -
+
 convert to class - DONE -
 
 refresh rate - DONE -
 
 sleep mode - between meetings
--> add hourly comparison or convert hour to minutes too
+-> add hourly comparison or convert hour to minutes too if necessary
 
-join delay
+join delay - DONE -
 
 volume manager - DONE -
 
-GUI - PysimpleGUI
+GUI - PysimpleGUI - DONE -
 
 mail, pwd confing file OR cookies - DONE -
 
-clean up main.py
+clean up main.py - DONE -
 
 check cookie integrity and time until expiration(?)
 
@@ -26,8 +28,12 @@ manage threads to only have 1 job scheduled
 
 test driver lifetime and behaviour
 
-turn off webcam
+turn off webcam (deccon-win)
 
 add comments
 
-join meeting with webdriver to avoid browser tab clutter
+join meeting with webdriver to avoid browser tab clutter - FAILED -
+
+schedule unmutes -> more threads to manage
+
+attendance notice/ping through Discord
