@@ -53,9 +53,9 @@ out_contents = ''.join(out_contents)
 window['out'].Update(out_contents)
 
 
-global t
 def long_function():
     # separate to the GUI thread
+    global t
     t = threading.Timer(interval=ex.join(), function=ex.join)
     t.start()
 
