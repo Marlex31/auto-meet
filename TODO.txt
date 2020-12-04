@@ -37,3 +37,5 @@ join meeting with webdriver to avoid browser tab clutter - FAILED -
 schedule unmutes -> more threads to manage
 
 attendance notice/ping through Discord
+
+remove spam caused by 2 Zoom processes

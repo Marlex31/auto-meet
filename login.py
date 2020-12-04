@@ -107,21 +107,24 @@ class LogIn:
                 break
 
         tags = self.driver.find_elements_by_tag_name('span')
-        pattern = r'^(\d)\s|\s(\d\d)\s'  # \s(\d?\d)\s
+        pattern = r'\s?(\d?\d)\s|acum cateva momente'
         for tag in tags:
             match = re.search(pattern, tag.text)
             if match is not None:
-                time_sent = int(match.group())
+                try:
+                    time_sent = int(match.group())
+                except ValueError:
+                    time_sent = 1
                 break
 
         if match is None:
-            print('> No meeting found, trying again.')
+            print('> No meeting found, trying again in 60s.')
             return 60
 
         # print(time_sent)
         curr_time = datetime.now().minute
 
-        if curr_time > time_sent and self.joined is False:
+        if curr_time > time_sent and self.joined is False and curr_time <= 30:
 
             toaster = ToastNotifier()
             toaster.show_toast("Meeting Automation",
@@ -133,15 +136,15 @@ class LogIn:
             self.joined = True
             return 0
 
-        elif curr_time > time_sent and self.joined is True:
+        elif curr_time > time_sent and self.joined is True or curr_time > 30:
             print(f'> Waiting until {datetime.now().hour + 1}:{15 + delay}.')
             self.joined = False
             return 60 * ((75 + delay) - curr_time)
 
         elif curr_time < 15:
-            print('> Waiting until the first quarter.')
-            return 60 * (15 - curr_time)
+            print(f'> Waiting until {datetime.now().hour}:{15 + delay}.')
+            return 60 * (15 - curr_time + delay)
 
         else:
-            print('> No meeting found, trying again...')
+            print('> No meeting found, trying again in 30s.')
             return 30

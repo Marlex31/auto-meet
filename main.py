@@ -16,8 +16,7 @@ sg.set_options(font=20)
 # GUI definition
 toggle_job = sg.Button('Start', size=(5, 1), key='job', enable_events=True)
 toggle_vol = sg.Button('Mute', size=(7, 1), key='btn', enable_events=True)
-layout = [
-    [sg.Output(size=(31, 5), key='out'), sg.Text('Join delay value:'),
+layout = [    [sg.Output(size=(33, 5), key='out'), sg.Text('Join delay value:'),
      sg.Spin(values=list(range(15)), initial_value=0, size=(2, 2),
              key='d', enable_events=True),
      sg.Text('mins')],
@@ -52,11 +51,15 @@ if audio_controller.process_volume() is None:
 out_contents = ''.join(out_contents)
 window['out'].Update(out_contents)
 
+global join_delay
+join_delay = 0
+
 
 def long_function():
-    # separate to the GUI thread
+    # separate from the GUI thread
     global t
-    t = threading.Timer(interval=ex.join(), function=ex.join)
+    t = threading.Timer(interval=ex.join(join_delay), function=ex.join,
+                        args=[join_delay])
     t.start()
 
 
@@ -100,11 +103,12 @@ while True:
         else:
             print("> Failed to add credentials.")
 
-    if event == 'cls':  # clear the Output elem of text
+    if event == 'cls':  # clear the contents of the Output elem
         window['out'].Update('')
 
     if event == 'd':  # delay value from Spinner elem
         print(f'> Delay set to {values["d"]}.')
+        join_delay = values['d']
 
 window.close()
-ex.driver.close()
+ex.driver.quit()
